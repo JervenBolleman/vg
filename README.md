@@ -34,7 +34,7 @@ Now, obtain the repo and its submodules:
 
     git clone --recursive https://github.com/vgteam/vg.git
 
-Then build with `. ./source_me.sh && make static`, and run with `./bin/vg`.
+Then build with `make static`, and run with `./bin/vg`.
 
 #### building on Mac OS X
 
@@ -52,7 +52,7 @@ VG can now be cloned and built:
 
     git clone --recursive https://github.com/vgteam/vg.git
     cd vg
-    . ./source_me.sh && make
+    make
     
 Note that static binaries cannot yet be built for Mac.
 
@@ -73,10 +73,13 @@ export LIBTOOLIZE=glibtoolize
 ln -s gcc-4.9 /usr/local/bin/gcc
 ln -s g++-4.9 /usr/local/bin/g++
 
+export CC=gcc-4.9
+export CXX=g++-4.9
+
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH;
 export LIBRARY_PATH=$LD_LIBRARY_PATH;
 
-. ./source_me.sh && make
+make
 ```
 
 ### Variation graph construction
