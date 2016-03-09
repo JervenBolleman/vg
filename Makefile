@@ -239,7 +239,7 @@ clean:
 	cd $(DEP_DIR) && cd xg && $(MAKE) clean
 	cd $(DEP_DIR) && cd vcflib && $(MAKE) clean
 	cd $(DEP_DIR) && cd sparsehash && $(MAKE) clean
-	cd $(DEP_DIR) && cd htslib && $(MAKE) clean
+	cd $(DEP_DIR) && cd htslib && $(MAKE) distclean
 	cd $(DEP_DIR) && cd fastahack && $(MAKE) clean
 	cd $(DEP_DIR) && cd gcsa2 && $(MAKE) clean
 	cd $(DEP_DIR) && cd gssw && $(MAKE) clean
