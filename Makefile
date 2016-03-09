@@ -116,7 +116,7 @@ $(OBJ_DIR)/Fasta.o: .pre-build
 	+ cd $(FASTAHACK_DIR) && $(MAKE) && mv Fasta.o $(CWD)/$(OBJ_DIR) && cp Fasta.h $(CWD)/$(INC_DIR)
 
 $(LIB_DIR)/libhts.a: .pre-build
-	+ cd $(HTSLIB_DIR) && $(MAKE) lib-static && mv libhts.a $(CWD)/$(LIB_DIR) && cp *.h $(CWD)/$(INC_DIR) && cp -r htslib $(CWD)/$(INC_DIR)/
+	+ cd $(HTSLIB_DIR) && autoconf && $(MAKE) lib-static && mv libhts.a $(CWD)/$(LIB_DIR) && cp *.h $(CWD)/$(INC_DIR) && cp -r htslib $(CWD)/$(INC_DIR)/
 
 $(LIB_DIR)/libxg.a: $(LIB_DIR)/libsdsl.a $(LIB_DIR)/libprotobuf.a
 	+ export PATH=$(CWD)/bin:$$PATH && export LIBRARY_PATH="$(CWD)/$(LIB_DIR):$$LIBRARY_PATH" && export LD_LIBRARY_PATH="$(CWD)/$(LIB_DIR):$$LD_LIBRARY_PATH" && export CPLUS_INCLUDE_PATH="$(CWD)/$(INC_DIR):$$CPLUS_INCLUDE_PATH" && cd $(XG_DIR) && $(MAKE) && cp obj/xg.o $(CWD)/$(OBJ_DIR)/ && cp lib/libxg.a $(CWD)/$(LIB_DIR)/ && cp src/*.hpp $(CWD)/$(INC_DIR)/ #&& cp include/* $(CWD)/$(INC_DIR)/
