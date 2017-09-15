@@ -345,9 +345,11 @@ $(INC_DIR)/dynamic.hpp: $(DYNAMIC_DIR)/include/*.hpp $(DYNAMIC_DIR)/include/inte
 $(INC_DIR)/sparsehash/sparse_hash_map: $(wildcard $(SPARSEHASH_DIR)/**/*.cc) $(wildcard $(SPARSEHASH_DIR)/**/*.h) 
 	+cd $(SPARSEHASH_DIR) && ./autogen.sh && ./configure --prefix=$(CWD) && $(MAKE) && $(MAKE) install
 
-#$(INC_DIR)/Variant.h
-$(LIB_DIR)/libvcfh.a: $(DEP_DIR)/libVCFH/*.cpp $(DEP_DIR)/libVCFH/*.hpp 
+libvcf: $(DEP_DIR)/libVCFH/*.cpp $(DEP_DIR)/libVCFH/*.hpp 
 	+cd $(DEP_DIR)/libVCFH && $(MAKE) && cp libvcfh.a $(CWD)/$(LIB_DIR)/ && cp vcfheader.hpp $(CWD)/$(INC_DIR)/
+
+$(INC_DIR)/Variant.h: libvcf
+$(LIB_DIR)/libvcfh.a: libvcf
 
 $(LIB_DIR)/libgfakluge.a: $(INC_DIR)/gfakluge.hpp $(DEP_DIR)/gfakluge/src/*.hpp $(DEP_DIR)/gfakluge/src/*.cpp
 	+cd $(DEP_DIR)/gfakluge && $(MAKE) && cp libgfakluge.a $(CWD)/$(LIB_DIR)/
@@ -466,8 +468,7 @@ $(OBJ_DIR)/progressive.o: $(SRC_DIR)/progressive.cpp $(SRC_DIR)/progressive.hpp 
 
 $(OBJ_DIR)/path_index.o: $(SRC_DIR)/path_index.cpp $(SRC_DIR)/path_index.hpp $(DEPS)
 
-## TODO vcflib build loses Variant.h
-$(OBJ_DIR)/deconstructor.o: $(SRC_DIR)/deconstructor.cpp $(SRC_DIR)/deconstructor.hpp $(LIB_DIR)/libvcfh.a $(SRC_DIR)/bubbles.hpp $(DEPS)
+$(OBJ_DIR)/deconstructor.o: $(SRC_DIR)/deconstructor.cpp $(SRC_DIR)/deconstructor.hpp $(LIB_DIR)/libvcfh.a $(INC_DIR)/Variant.h $(SRC_DIR)/bubbles.hpp $(DEPS)
 
 $(OBJ_DIR)/vectorizer.o: $(SRC_DIR)/vectorizer.cpp $(SRC_DIR)/vectorizer.hpp $(DEPS)
 
@@ -731,7 +732,7 @@ clean-vg:
 	$(RM) -r $(OBJ_DIR)/*.o
 	$(RM) -r $(CPP_DIR)/*.o $(CPP_DIR)/*.cc $(CPP_DIR)/*.h
 
-clean: clean-rocksdb clean-protobuf clean-vcflib
+clean: clean-rocksdb clean-protobuf clean-vcflib clean-lrucache
 	$(RM) -r $(BIN_DIR)
 	$(RM) -r $(LIB_DIR)
 	$(RM) -r $(UNITTEST_OBJ_DIR)
@@ -753,8 +754,11 @@ clean: clean-rocksdb clean-protobuf clean-vcflib
 	cd $(DEP_DIR) && cd sha1 && $(MAKE) clean
 	rm -Rf $(RAPTOR_DIR)/build/*
 	## TODO vg source code
-	## TODO LRU_CACHE
 	## TODO bash-tap
+
+clean-lrucache:
+	cd $(DEP_DIR) && cd lru_cache && $(MAKE) clean
+	rm -f $(INC_DIR)/lru_cache.h
 
 clean-rocksdb:
 	cd $(DEP_DIR) && cd rocksdb && $(MAKE) clean
