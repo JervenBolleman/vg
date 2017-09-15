@@ -207,7 +207,7 @@ SHA1_DIR:=deps/sha1
 DYNAMIC_DIR:=deps/DYNAMIC
 SSW_DIR:=deps/ssw/src
 STATIC_FLAGS=-static -static-libstdc++ -static-libgcc
-
+LIBPROTOBUF_INSTALLED_DIR=/usr/lib64/
 # Dependencies that go into libvg's archive
 LIB_DEPS =
 LIB_DEPS += $(LIB_DIR)/libprotobuf.a
@@ -244,6 +244,7 @@ ifneq ($(shell uname -s),Darwin)
 	DEPS += $(LIB_DIR)/libtcmalloc_minimal.a
 	LD_LIB_FLAGS += -ltcmalloc_minimal
 	CXXFLAGS += -march=native -mtune=native
+	LIBPROTOBUF_INSTALLED_DIR=
 endif
 
 .PHONY: clean get-deps deps test set-path static docs .pre-build
@@ -282,14 +283,21 @@ endif
 # Make sure we have protoc built, and the protobuf lib, both of which come from the same command using this fake intermediate
 bin/protoc: .rebuild-protobuf
 $(LIB_DIR)/libprotobuf.a: .rebuild-protobuf
-	# intermediate targets don't trigger a rebuild just because they're missing.
-.INTERMEDIATE: .rebuild-protobuf
-	# Make sure to delete outdated libs and headers before rebuilding
-	# Outdated headers can get picked up during the build
+
+INTERMEDIATE: .rebuild-protobuf
 .rebuild-protobuf: deps/protobuf/src/google/protobuf/*.cc
+ifeq ($(shell protoc --version | cut -f "2" -d ' ' | grep -Pc "3.\d.\d" || echo '0'),1)
+	echo "VALID PROTOBUF DETECTED"
+	rm -f $(BIN_DIR)/protoc
+	rm -f $(LIB_DIR)/libprotobuf.s
+	ln -sf $(shell which protoc) $(BIN_DIR)/protoc
+	ln -sf /usr/lib64/libprotobuf.a $(LIB_DIR)/libprotobuf.a
+else
+	echo "PROTOBUF DETECTION FAILED REBUILDING FROM SUBMODULE"
 	rm -rf $(LIB_DIR)/libprotobuf* $(LIB_DIR)/libprotoc*
 	rm -Rf include/google/protobuf/
 	+. ./source_me.sh && cd $(PROTOBUF_DIR) && ./autogen.sh && export DIST_LANG=cpp && ./configure --prefix="$(CWD)"  && $(MAKE) && $(MAKE) install && export PATH=$(CWD)/bin:$$PATH
+endif
 
 test/build_graph: test/build_graph.cpp $(LIB_DIR)/libvg.a $(CPP_DIR)/vg.pb.h $(SRC_DIR)/json2pb.h $(SRC_DIR)/vg.hpp
 	. ./source_me.sh && $(CXX) $(CXXFLAGS) -o test/build_graph test/build_graph.cpp $(LD_INCLUDE_FLAGS) -lvg $(LD_LIB_FLAGS) $(ROCKSDB_LDFLAGS)

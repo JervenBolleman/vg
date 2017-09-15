@@ -9,6 +9,7 @@ ARG vg_git_revision=master
 #RUN locale-gen en_US en_US.UTF-8 && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
 
 # install apt dependencies
+RUN add-apt-repository ppa:maarten-fonville/protobuf
 RUN apt-get -qq update && apt-get -qq install -y \
     pkg-config \
     sudo \
@@ -40,8 +41,9 @@ RUN apt-get -qq update && apt-get -qq install -y \
     redland-utils \
     raptor2-utils \
     rasqal-utils \
-    samtools
-ADD http://mirrors.kernel.org/ubuntu/pool/universe/b/bwa/bwa_0.7.15-2_amd64.deb /tmp/bwa.deb
+    samtools \
+    protobuf
+ADD http://mirrors.kernel.org/ubuntu/pool/universe/b/bwa/bwa_1.7.15-2_amd64.deb /tmp/bwa.deb
 RUN dpkg -i /tmp/bwa.deb
 
 # copy over current directory to docker
